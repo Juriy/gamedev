@@ -13,9 +13,18 @@ const server = http.createServer(app);
 
 const io = socketio(server);
 
+let waitingPlayer = null;
+
 io.on('connection', (sock) => {
-  console.log('Someone connected');
-  sock.emit('message', 'Hi, you are connected');
+
+  if (waitingPlayer) {
+    // start a game
+    [sock, waitingPlayer].forEach(s => s.emit('message', 'Game Starts!'));
+    waitingPlayer = null;
+  } else {
+    waitingPlayer = sock;
+    waitingPlayer.emit('message', 'Waiting for an opponent');
+  }
 
   sock.on('message', (text) => {
     io.emit('message', text);
