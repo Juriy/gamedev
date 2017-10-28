@@ -2,6 +2,8 @@ const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
 
+const RpsGame = require('./rps-game');
+
 const app = express();
 
 const clientPath = `${__dirname}/../client`;
@@ -18,8 +20,7 @@ let waitingPlayer = null;
 io.on('connection', (sock) => {
 
   if (waitingPlayer) {
-    // start a game
-    [sock, waitingPlayer].forEach(s => s.emit('message', 'Game Starts!'));
+    new RpsGame(waitingPlayer, sock);
     waitingPlayer = null;
   } else {
     waitingPlayer = sock;
